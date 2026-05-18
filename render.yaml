@@ -16,7 +16,7 @@ services:
     runtime: docker
     dockerfilePath: ./backend/Dockerfile
     dockerContext: ./backend
-    plan: free
+    plan: starter
     healthCheckPath: /health
 
     envVars:
@@ -55,7 +55,7 @@ services:
     runtime: static
     buildCommand: cd frontend && npm ci && npm run build
     staticPublishPath: frontend/dist
-    plan: free
+    plan: starter
 
     routes:
       - type: rewrite
