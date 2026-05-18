@@ -4,7 +4,7 @@ services:
     name: atomquest-db
     plan: free
     ipAllowList: []
-    postgresSQLVersion: 15
+    postgresMajorVersion: 15
 
   # Redis Cache Service
   - type: pserv
