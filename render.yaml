@@ -2,6 +2,7 @@ databases:
   - name: atomquest-db
     plan: free
     postgresMajorVersion: "15"
+    plan: free
 
 services:
   # Redis Cache
@@ -63,5 +64,5 @@ services:
         destination: /index.html
 
     envVars:
-  - key: VITE_API_URL
-    value: https://example.com
+      - key: VITE_API_URL
+        value: https://example.com
