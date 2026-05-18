@@ -7,6 +7,10 @@ import { errorHandler } from './middleware/errorHandler';
 
 const app = express();
 
+app.get('/health', (_req, res) => {
+  res.status(200).json({ status: 'ok' });
+});
+
 app.use(helmet());
 app.use(cors());
 app.use(express.json());
