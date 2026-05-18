@@ -1,8 +1,12 @@
+
 #!/bin/sh
 set -e
 
-echo "Applying database migrations..."
+echo "Running Prisma migrations..."
 npx prisma migrate deploy
 
-echo "Starting API on port ${PORT:-3001}..."
-exec node dist/server.js
+echo "Seeding database..."
+npx prisma db seed
+
+echo "Starting server..."
+node dist/server.js
