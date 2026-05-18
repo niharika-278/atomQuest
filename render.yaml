@@ -6,13 +6,13 @@ databases:
 services:
   # Redis Cache
   - type: keyvalue
-    name: goal-portal-redis
+    name: atomquest-redis
     plan: free
     ipAllowList: []
 
   # Backend API
   - type: web
-    name: goal-portal-api
+    name: atomquest-api
     runtime: docker
     dockerfilePath: ./backend/Dockerfile
     dockerContext: ./backend
@@ -33,7 +33,7 @@ services:
 
       - key: REDIS_URL
         fromService:
-          name: goal-portal-redis
+          name: atomquest-redis
           type: keyvalue
           property: connectionString
 
@@ -51,7 +51,7 @@ services:
 
   # Frontend
   - type: web
-    name: goal-portal-web
+    name: atomquest-web
     runtime: static
     buildCommand: cd frontend && npm ci && npm run build
     staticPublishPath: frontend/dist
