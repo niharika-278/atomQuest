@@ -63,8 +63,5 @@ services:
         destination: /index.html
 
     envVars:
-      - key: VITE_API_URL
-        fromService:
-          name: goal-portal-api
-          type: web
-          property: url
+  - key: VITE_API_URL
+    value: https://example.com
