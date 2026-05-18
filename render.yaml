@@ -2,7 +2,6 @@ databases:
   - name: atomquest-db
     plan: free
     postgresMajorVersion: "15"
-    plan: free
 
 services:
   # Redis Cache
