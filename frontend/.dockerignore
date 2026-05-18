@@ -1,0 +1,73 @@
+# Dependencies 
+node_modules
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+pnpm-debug.log
+ 
+# Version control
+.git
+.gitignore
+ 
+# Documentation
+README.md
+docs/
+*.md
+ 
+# Environment files 
+.env.local
+.env.*.local
+ 
+# Build artifacts dist/
+build/
+ 
+# Source files 
+src/
+public/ 
+
+ 
+# Test files
+*.test.ts
+*.test.tsx
+*.test.js
+*.test.jsx
+*.spec.ts
+*.spec.tsx
+*.spec.js
+*.spec.jsx
+vitest.config.ts
+coverage/
+ 
+# IDE
+.vscode/
+.idea/
+.sublime-project
+.sublime-workspace
+ 
+# OS
+.DS_Store
+Thumbs.db
+*.swp
+*~
+ 
+# Logs
+*.log
+logs/
+ 
+# Config files vite.config.ts
+tsconfig.json
+postcss.config.js
+tailwind.config.js
+.eslintrc*
+prettier.config.js
+jest.config.js
+ 
+# Misc
+.cache/
+temp/
+tmp/
+docker-compose.yml
+docker-compose.*.yml
+Dockerfile
+.dockerignore
+nginx.conf  

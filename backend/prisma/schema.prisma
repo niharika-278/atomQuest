@@ -1,0 +1,202 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  EMPLOYEE
+  MANAGER
+  ADMIN
+}
+
+enum GoalStatus {
+  draft
+  pending_approval
+  approved
+  rejected
+  archived
+}
+
+enum UoMType {
+  MIN
+  MAX
+  TIMELINE
+  ZERO
+}
+
+enum AchievementStatus {
+  not_started
+  on_track
+  completed
+}
+
+enum AuditAction {
+  create
+  update
+  delete
+  approve
+  reject
+  lock
+  unlock
+}
+
+enum CyclePhase {
+  goal_setting
+  q1_checkin
+  q2_checkin
+  q3_checkin
+  q4_final
+}
+
+enum ThrustArea {
+  STRATEGIC
+  OPERATIONAL
+  TALENT
+  QUALITY
+  INNOVATION
+}
+
+model User {
+  id            String   @id @default(cuid())
+  email         String   @unique
+  name          String
+  password_hash String
+  role          UserRole @default(EMPLOYEE)
+  department_id String?
+  manager_id    String?
+  is_active     Boolean  @default(true)
+  entra_id_oid  String?  @unique
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+
+  manager              User?         @relation("ManagerRelation", fields: [manager_id], references: [id])
+  direct_reports       User[]        @relation("ManagerRelation")
+  created_goals        Goal[]        @relation("GoalCreator")
+  approved_goals       Goal[]        @relation("GoalApprover")
+  unlocked_goals       Goal[]        @relation("GoalUnlocker")
+  achievements         Achievement[] @relation("AchievementCreator")
+  checkins_as_employee CheckIn[]     @relation("CheckInEmployee")
+  checkins_as_manager  CheckIn[]     @relation("CheckInManager")
+  audit_logs           AuditLog[]
+  created_cycles       Cycle[]       @relation("CycleCreator")
+
+  @@index([manager_id])
+  @@index([email])
+}
+
+model Department {
+  id         String   @id @default(cuid())
+  name       String   @unique
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
+
+model Goal {
+  id             String     @id @default(cuid())
+  employee_id    String
+  thrust_area    ThrustArea
+  title          String
+  description    String?    @db.Text
+  uom_type       UoMType
+  target_value   Decimal    @db.Decimal(15, 2)
+  weightage      Decimal    @db.Decimal(5, 2)
+  status         GoalStatus @default(draft)
+  is_locked      Boolean    @default(false)
+  locked_at      DateTime?
+  locked_by      String?
+  unlocked_by    String?
+  parent_goal_id String?
+  created_by     String
+  created_at     DateTime   @default(now())
+  updated_at     DateTime   @updatedAt
+
+  employee     User          @relation("GoalCreator", fields: [employee_id], references: [id])
+  approver     User?         @relation("GoalApprover", fields: [locked_by], references: [id])
+  unlocker     User?         @relation("GoalUnlocker", fields: [unlocked_by], references: [id])
+  parent_goal  Goal?         @relation("SharedGoals", fields: [parent_goal_id], references: [id])
+  shared_with  Goal[]        @relation("SharedGoals")
+  achievements Achievement[]
+
+  @@index([employee_id])
+  @@index([status])
+  @@index([is_locked])
+  @@index([parent_goal_id])
+}
+
+model Achievement {
+  id             String            @id @default(cuid())
+  goal_id        String
+  quarter_code   String
+  actual_value   Decimal?          @db.Decimal(15, 2)
+  status         AchievementStatus   @default(not_started)
+  progress_score Decimal?          @db.Decimal(5, 2)
+  created_by     String
+  created_at     DateTime          @default(now())
+  updated_at     DateTime          @updatedAt
+
+  goal       Goal       @relation(fields: [goal_id], references: [id], onDelete: Cascade)
+  creator User @relation("AchievementCreator", fields: [created_by], references: [id])
+
+  @@unique([goal_id, quarter_code])
+  @@index([goal_id])
+  @@index([quarter_code])
+}
+
+model CheckIn {
+  id           String    @id @default(cuid())
+  employee_id  String
+  manager_id   String
+  quarter_code String
+  comment      String?   @db.Text
+  is_completed Boolean   @default(false)
+  completed_at DateTime?
+  created_at   DateTime  @default(now())
+  updated_at   DateTime  @updatedAt
+
+  employee User @relation("CheckInEmployee", fields: [employee_id], references: [id])
+  manager  User @relation("CheckInManager", fields: [manager_id], references: [id])
+
+  @@unique([employee_id, manager_id, quarter_code])
+  @@index([employee_id])
+  @@index([manager_id])
+}
+
+model AuditLog {
+  id             String      @id @default(cuid())
+  entity_type    String
+  entity_id      String
+  action         AuditAction
+  changed_by     String
+  previous_value String?     @db.Text
+  new_value      String?     @db.Text
+  timestamp      DateTime    @default(now())
+  ip_address     String?
+
+  user User @relation(fields: [changed_by], references: [id])
+
+  @@index([entity_type])
+  @@index([entity_id])
+  @@index([changed_by])
+  @@index([timestamp])
+}
+
+model Cycle {
+  id            String     @id @default(cuid())
+  year          Int
+  phase         CyclePhase
+  window_opens  DateTime
+  window_closes DateTime
+  is_active     Boolean    @default(false)
+  created_by    String
+  created_at    DateTime   @default(now())
+  updated_at    DateTime   @updatedAt
+
+  creator User @relation("CycleCreator", fields: [created_by], references: [id])
+
+  @@unique([year, phase])
+  @@index([is_active])
+}
